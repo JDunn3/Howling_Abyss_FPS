@@ -21,7 +21,6 @@ public class NexusController : MonoBehaviour {
         yield return new WaitForSeconds(startDelay);
         for (int x = 0; x < 3; x++)
         {
-            Debug.Log(@"\Prefabs\" + this.tag + "_Melee_Minion");
             Instantiate(meleeMinion, this.transform.GetChild(0).position, this.transform.GetChild(0).rotation);
             yield return new WaitForSeconds(1);
         }

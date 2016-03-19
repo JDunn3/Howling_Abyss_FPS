@@ -13,6 +13,7 @@ public class MinionController : MonoBehaviour {
 	CombatController myAttackController;
 	StatsController.StatsObject baseStats;
     bool targetAlive;
+	float nextAttack;
 
 	void Awake () {
 
@@ -20,10 +21,13 @@ public class MinionController : MonoBehaviour {
         anim = GetComponent<Animation>();
         rb = GetComponent<Rigidbody>();
 		myAttackController = GetComponent<CombatController>();
-		baseStats = myAttackController.GetBaseStats();
         aggroCollider = GetComponent<SphereCollider>();
+		nextAttack = 0.0f;
+
+		baseStats = myAttackController.GetBaseStats();
 		targetAlive = false;
 		agent.updateRotation = true;
+		agent.avoidancePriority = Random.Range(1,99);
 	}
 
 	void Start()
@@ -35,16 +39,6 @@ public class MinionController : MonoBehaviour {
     void Update()
     {
 		
-		if (target != null) 
-		{
-			if (Vector3.Distance (transform.position, agent.destination) <= 1.2f) {
-				anim.Play ("idle");
-			}
-        //Might need optimization here to check if the target is static so we don't waste resources every  frame calculating a new path
-        else if (!target.isStatic)
-				agent.destination = target.transform.position + (target.transform.forward * 0.5f);
-		}
-
     }
 
 
@@ -62,7 +56,18 @@ public class MinionController : MonoBehaviour {
 
     void FixedUpdate()
     {
-        transform.rotation = Quaternion.LookRotation(transform.forward);
+		if (target != null) 
+		{
+			if (Vector3.Distance (transform.position, agent.destination) <= 1.1f) {
+				//anim.Play ("idle");
+				Attack ();
+			}
+			//Might need optimization here to check if the target is static so we don't waste resources every  frame calculating a new path
+			else if (!target.isStatic) {
+				agent.SetDestination (target.transform.position + (target.transform.forward) * .5f);
+			}
+			transform.LookAt(target.transform);
+		}
     }
 
 	public void ForceTarget(GameObject myTarget)
@@ -72,9 +77,12 @@ public class MinionController : MonoBehaviour {
 		agent.SetDestination(myTarget.transform.position);
 	}
 
-	public void Attack(GameObject target)
+	public void Attack()
 	{
-
+		if (Time.time > nextAttack) {
+			anim.Play ("attack");
+			anim.PlayQueued ("idle");
+		}
 	}
 
 }

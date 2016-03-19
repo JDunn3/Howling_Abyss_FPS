@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class StatsController : MonoBehaviour {
 
-	static float minionAttackSpeed = 1.0f,
+	static float minionAttackSpeed = 5.0f,
 			towerAttackSpeed = 1.5f;
 
 	// Use this for initialization
@@ -30,7 +30,7 @@ public class StatsController : MonoBehaviour {
 			public OffensiveStatsObject(float AttackSpeed)
 			{
 				
-				this.attackSpeed =AttackSpeed;
+				this.attackSpeed = AttackSpeed;
 			}
 		}
 

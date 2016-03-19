@@ -42,6 +42,5 @@ public class NexusController : MonoBehaviour {
 			child.gameObject.tag = this.tag;
 		teamAssignableGameObject.GetComponent<MinionController>().ForceTarget(GameObject.Find(GameController.getOpposingTeam(this.tag) + "Nexus"));
 		teamAssignableGameObject.GetComponentInChildren<Renderer>().material.SetColor("_Color", color);
-		var thing = teamAssignableGameObject.GetComponentInChildren<Renderer> ().materials;
     }
 }

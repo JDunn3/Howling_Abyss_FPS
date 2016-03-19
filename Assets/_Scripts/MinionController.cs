@@ -4,12 +4,14 @@ using System.Collections;
 public class MinionController : MonoBehaviour {
 
     GameObject[] Inhibs;
-    public GameObject target;
+    GameObject target;
     NavMeshAgent agent;
     Animation anim;
 	//Dunno why but this was giving a warning about hiding something if not using new.
-    SphereCollider collider;
+	SphereCollider aggroCollider;
     Rigidbody rb;
+	CombatController myAttackController;
+	StatsController.StatsObject baseStats;
     bool targetAlive;
 
 	void Awake () {
@@ -17,10 +19,11 @@ public class MinionController : MonoBehaviour {
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animation>();
         rb = GetComponent<Rigidbody>();
-        collider = GetComponent<SphereCollider>();
+		myAttackController = GetComponent<CombatController>();
+		baseStats = myAttackController.GetBaseStats();
+        aggroCollider = GetComponent<SphereCollider>();
 		targetAlive = false;
 		agent.updateRotation = true;
-        
 	}
 
 	void Start()
@@ -32,13 +35,6 @@ public class MinionController : MonoBehaviour {
     void Update()
     {
 		
-//		if (!targetAlive && target == null)
-//        {
-//            target = GameObject.Find(GameController.getOpposingTeam(this.tag) + "Nexus");
-//			targetAlive = target.GetComponent<AttackableController> ().alive;
-//            agent.updateRotation = true;
-//            agent.SetDestination(target.transform.position);
-//        }
 		if (target != null) 
 		{
 			if (Vector3.Distance (transform.position, agent.destination) <= 1.2f) {
@@ -56,7 +52,7 @@ public class MinionController : MonoBehaviour {
     {
 		if (target != null && !other.isTrigger && other.tag == GameController.getOpposingTeam(this.tag))
         {
-			if (Vector3.Distance(this.transform.position, target.transform.position) > collider.radius)
+			if (Vector3.Distance(this.transform.position, target.transform.position) > aggroCollider.radius)
             {
                 target = other.gameObject;
                 agent.SetDestination(target.transform.forward + target.transform.position);
@@ -72,8 +68,13 @@ public class MinionController : MonoBehaviour {
 	public void ForceTarget(GameObject myTarget)
 	{
 		target = myTarget;
-		targetAlive = myTarget.GetComponent<AttackableController>().alive;
+		targetAlive = myTarget.GetComponent<CombatController>().IsAlive();
 		agent.SetDestination(myTarget.transform.position);
+	}
+
+	public void Attack(GameObject target)
+	{
+
 	}
 
 }

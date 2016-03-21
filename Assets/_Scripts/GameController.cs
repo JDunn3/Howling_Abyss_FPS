@@ -15,4 +15,11 @@ public class GameController : MonoBehaviour {
         return "Uh oh";
     }
 
+	public enum DamageType
+	{
+		Physical,
+		Magic,
+		True
+	}
+
 }

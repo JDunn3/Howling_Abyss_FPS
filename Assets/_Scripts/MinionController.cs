@@ -10,7 +10,7 @@ public class MinionController : MonoBehaviour {
 	//Dunno why but this was giving a warning about hiding something if not using new.
 	SphereCollider aggroCollider;
     Rigidbody rb;
-	CombatController myAttackController;
+	CombatController myCombatController;
 	StatsController.StatsObject baseStats;
     bool targetAlive;
 	float nextAttack;
@@ -20,11 +20,11 @@ public class MinionController : MonoBehaviour {
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animation>();
         rb = GetComponent<Rigidbody>();
-		myAttackController = GetComponent<CombatController>();
+		myCombatController = GetComponent<CombatController>();
         aggroCollider = GetComponent<SphereCollider>();
 		nextAttack = 0.0f;
 
-		baseStats = myAttackController.GetBaseStats();
+
 		targetAlive = false;
 		agent.updateRotation = true;
 		agent.avoidancePriority = Random.Range(1,99);
@@ -32,13 +32,16 @@ public class MinionController : MonoBehaviour {
 
 	void Start()
 	{
+		baseStats = myCombatController.GetBaseStats();
 		anim.Play("run");
+
 	}
 
 
     void Update()
     {
-		
+//		if (target.GetComponentInParent<CombatController> ().IsAlive () == false)
+//			FindNewTarget ();
     }
 
 
@@ -70,6 +73,15 @@ public class MinionController : MonoBehaviour {
 		}
     }
 
+	void LateUpdate()
+	{
+		if (myCombatController.IsAlive() == false) 
+		{
+			anim.Play ("jump");
+			Destroy (this.gameObject, 1);
+		}
+	}
+
 	public void ForceTarget(GameObject myTarget)
 	{
 		target = myTarget;
@@ -79,10 +91,22 @@ public class MinionController : MonoBehaviour {
 
 	public void Attack()
 	{
+		var currentTime = Time.time;
 		if (Time.time > nextAttack) {
+			nextAttack = Time.time + baseStats.AttackStats.attackSpeed;
 			anim.Play ("attack");
+			target.GetComponentInParent<CombatController> ().ReceiveDamage (GameController.DamageType.Physical, 50/*This should be attack damage... duh*/);
 			anim.PlayQueued ("idle");
 		}
 	}
+
+//	void FindNewTarget()
+//	{
+//		foreach( Collider collider in Physics.OverlapSphere (this.transform.position, aggroCollider.radius)
+//			{
+//				if(collider
+//			}
+//
+//	}
 
 }

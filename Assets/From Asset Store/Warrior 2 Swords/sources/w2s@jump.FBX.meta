@@ -112,7 +112,7 @@ ModelImporter:
       takeName: verdugo_12@jump
       firstFrame: 123
       lastFrame: 139
-      wrapMode: 0
+      wrapMode: 8
       orientationOffsetY: 0
       level: 0
       cycleOffset: 0

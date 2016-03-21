@@ -5,7 +5,8 @@ public class CombatController : MonoBehaviour {
 
 	bool alive;
 
-	public float maxHealth;
+	public float maxHealth,
+	currentHealth;
 
 	StatsController.StatsObject baseStats;
 
@@ -14,11 +15,13 @@ public class CombatController : MonoBehaviour {
 		alive = true;
 		baseStats = StatsController.GetBaseStats(this.name);
 		maxHealth = baseStats.DefendStats.health;
+		currentHealth = maxHealth;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	
+		if (currentHealth <= 0)
+			alive = false;
 	}
 
 	public bool IsAlive()
@@ -29,6 +32,23 @@ public class CombatController : MonoBehaviour {
 	public StatsController.StatsObject GetBaseStats()
 	{
 		return baseStats;
+	}
+
+	public float ReceiveDamage(GameController.DamageType damageType,  float amount)
+	{
+		float actDmgDealt = 0;
+		switch(damageType)
+		{
+		case GameController.DamageType.Physical:
+			actDmgDealt = amount - baseStats.DefendStats.armor;
+			currentHealth -= actDmgDealt;
+			break;
+		case GameController.DamageType.Magic:
+			break;
+		case GameController.DamageType.True:
+			break;
+		}
+		return actDmgDealt;
 	}
 		
 }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class StatsController : MonoBehaviour {
 
-	static float minionAttackSpeed = 5.0f,
+	static float minionAttackSpeed = 3.0f,
 			towerAttackSpeed = 1.5f;
 
 	// Use this for initialization
@@ -36,12 +36,16 @@ public class StatsController : MonoBehaviour {
 
 		public class DefensiveStatsObject
 		{
-			public float health;
+			public float health,
+				armor,
+				magicResist;
 
-			public DefensiveStatsObject(float Health)
+			public DefensiveStatsObject(float Health, float Armor, float MagicResist)
 			{
 				
 				this.health = Health;
+				this.armor = Armor;
+				this.magicResist = MagicResist;
 			}
 		}
 
@@ -53,21 +57,21 @@ public class StatsController : MonoBehaviour {
 			}
 		}
 
-		public StatsObject(float MaxHealth, float AttackSpeed)
+		public StatsObject(float MaxHealth, float AttackSpeed, float Armor, float MagicResist)
 		{
-			AttackStats = new OffensiveStatsObject(MaxHealth);
-			DefendStats = new DefensiveStatsObject(AttackSpeed);
+			AttackStats = new OffensiveStatsObject(AttackSpeed);
+			DefendStats = new DefensiveStatsObject(MaxHealth, Armor, MagicResist);
 			OtherStats = new OtherStatsObject();
 		}
 	}
 
 	static Dictionary<string,StatsObject> baseStatsDict = new Dictionary<string, StatsObject>() {
-		{ "MeleeMinion", 		new StatsObject (100.0f, minionAttackSpeed) },
-		{ "Nexus", 				new StatsObject (1000.0f, 0.0f) },
-		{ "Tower_Outer", 		new StatsObject (1000.0f, towerAttackSpeed) },
-		{ "Tower_Inhib", 		new StatsObject (1000.0f, towerAttackSpeed) },
-		{ "Tower_NexusNorth", 	new StatsObject (1000.0f, towerAttackSpeed) },
-		{ "Tower_NexusSouth", 	new StatsObject (1000.0f, towerAttackSpeed) }
+		{ "MeleeMinion", 		new StatsObject (100.0f, minionAttackSpeed, 2.0f, 10.0f) },
+		{ "Nexus", 				new StatsObject (1000.0f, 0.0f, 2.0f, 10.0f) },
+		{ "Tower_Outer", 		new StatsObject (1000.0f, towerAttackSpeed, 2.0f, 10.0f) },
+		{ "Tower_Inhib", 		new StatsObject (1000.0f, towerAttackSpeed, 2.0f, 10.0f) },
+		{ "Tower_NexusNorth", 	new StatsObject (1000.0f, towerAttackSpeed, 2.0f, 10.0f) },
+		{ "Tower_NexusSouth", 	new StatsObject (1000.0f, towerAttackSpeed, 2.0f, 10.0f) }
 	};
 
 	public static StatsObject GetBaseStats(string identifier)

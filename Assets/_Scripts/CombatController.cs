@@ -34,7 +34,7 @@ public class CombatController : MonoBehaviour {
 		return baseStats;
 	}
 
-	public float ReceiveDamage(GameController.DamageType damageType,  float amount)
+	public bool ReceiveDamage(GameController.DamageType damageType,  float amount)
 	{
 		float actDmgDealt = 0;
 		switch(damageType)

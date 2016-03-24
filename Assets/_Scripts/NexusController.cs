@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 public class NexusController : MonoBehaviour {
 
+
     public int startDelay;
     public GameObject meleeMinion;
-
 	// Use this for initialization
 	void Start () {
         StartCoroutine(SpawnMinionWaves());
@@ -21,7 +21,7 @@ public class NexusController : MonoBehaviour {
     {
         yield return new WaitForSeconds(startDelay);
         //Spawn the melee minions
-        for (int x = 0; x < 3; x++)
+        for (int x = 0; x < 6; x++)
         {
             GameObject myMeleeMinion = Instantiate(meleeMinion, this.transform.GetChild(0).position, this.transform.GetChild(0).rotation) as GameObject;
             AssignTeam(myMeleeMinion);
@@ -40,7 +40,7 @@ public class NexusController : MonoBehaviour {
 		teamAssignableGameObject.tag = this.tag;
 		foreach(Transform child in teamAssignableGameObject.transform)
 			child.gameObject.tag = this.tag;
-		teamAssignableGameObject.GetComponent<MinionController>().ForceTarget(GameObject.Find(GameController.getOpposingTeam(this.tag) + "Nexus"));
+		//teamAssignableGameObject.GetComponent<MinionController>().ForceTarget(GameObject.Find(GameController.getOpposingTeam(this.tag) + "Nexus"));
 		teamAssignableGameObject.GetComponentInChildren<Renderer>().material.SetColor("_Color", color);
     }
 }

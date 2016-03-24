@@ -3,6 +3,8 @@ using System.Collections;
 using System;
 
 public class GameController : MonoBehaviour {
+	
+	public static int attackableLayer = 9;
 
     public static string getOpposingTeam(string team)
     {

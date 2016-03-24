@@ -1,10 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
+/// <summary>
+/// TO DO- Remove old range sphere collirders from the objects!!
+/// Should the die deleteObject() be moved into the combat controller rather than the minion controller????
+/// </summary>
 public class MinionController : MonoBehaviour {
 
-    GameObject[] Inhibs;
-    GameObject target;
+    public GameObject target;
     NavMeshAgent agent;
     Animation anim;
 	//Dunno why but this was giving a warning about hiding something if not using new.
@@ -12,8 +17,10 @@ public class MinionController : MonoBehaviour {
     Rigidbody rb;
 	CombatController myCombatController;
 	StatsController.StatsObject baseStats;
-    bool targetAlive;
-	float nextAttack;
+	LayerMask layerMask;
+    public bool targetLocked;
+	float nextAttack,
+	aggroRange;
 
 	void Awake () {
 
@@ -21,11 +28,10 @@ public class MinionController : MonoBehaviour {
         anim = GetComponent<Animation>();
         rb = GetComponent<Rigidbody>();
 		myCombatController = GetComponent<CombatController>();
-        aggroCollider = GetComponent<SphereCollider>();
+		aggroCollider = GetComponentInChildren<SphereCollider>();
 		nextAttack = 0.0f;
+		aggroRange = 9f;
 
-
-		targetAlive = false;
 		agent.updateRotation = true;
 		agent.avoidancePriority = Random.Range(1,99);
 	}
@@ -34,79 +40,81 @@ public class MinionController : MonoBehaviour {
 	{
 		baseStats = myCombatController.GetBaseStats();
 		anim.Play("run");
-
+		layerMask = 1 << GameController.attackableLayer;
+		//target = GameObject.Find(GameController.getOpposingTeam (this.tag) + "Nexus");
+		agent.SetDestination(GameObject.Find(GameController.getOpposingTeam (this.tag) + "Nexus").transform.position);
 	}
 
 
-    void Update()
-    {
-//		if (target.GetComponentInParent<CombatController> ().IsAlive () == false)
-//			FindNewTarget ();
+    void LateUpdate()
+	{
+		DecideAction();
+
     }
 
-
-    void OnTriggerEnter(Collider other)
-    {
-		if (target != null && !other.isTrigger && other.tag == GameController.getOpposingTeam(this.tag))
-        {
-			if (Vector3.Distance(this.transform.position, target.transform.position) > aggroCollider.radius)
-            {
-                target = other.gameObject;
-                agent.SetDestination(target.transform.forward + target.transform.position);
-            }
-        }
-    }
-
-    void FixedUpdate()
-    {
-		if (target != null) 
+	void DecideAction()
+	{
+		if (target == null) 
 		{
-			if (Vector3.Distance (transform.position, agent.destination) <= 1.1f) {
-				//anim.Play ("idle");
+			if (ScanForTargets ())
+				agent.SetDestination (target.transform.position);
+			if(agent.pathStatus == NavMeshPathStatus.PathComplete)
+				agent.SetDestination(GameObject.Find(GameController.getOpposingTeam (this.tag) + "Nexus").transform.position);
+
+			anim.Play ("run");
+
+		}
+		else
+		{
+			this.transform.LookAt (target.transform);
+			agent.SetDestination (target.transform.position);
+			if (agent.remainingDistance < 1.5f) 
+			{
 				Attack ();
 			}
-			//Might need optimization here to check if the target is static so we don't waste resources every  frame calculating a new path
-			else if (!target.isStatic) {
-				agent.SetDestination (target.transform.position + (target.transform.forward) * .5f);
-			}
-			transform.LookAt(target.transform);
 		}
-    }
 
-	void LateUpdate()
+
+	}
+
+	bool ScanForTargets()
+	{
+		Collider[] colliders = Physics.OverlapSphere (this.transform.position, aggroRange, layerMask, QueryTriggerInteraction.Ignore);
+		if (colliders.Length > 0) {
+			List<Collider> potentialTargets = colliders.OfType<Collider> ().ToList<Collider> ();
+			//order by the closest
+			potentialTargets = potentialTargets.OrderBy (x => Vector3.Distance (this.transform.position, x.transform.position)).ToList ();
+			foreach (Collider potentialTarget in potentialTargets) 
+			{
+				//ignore teammates
+				if (this.tag != potentialTarget.gameObject.tag) 
+				{
+					target = potentialTarget.gameObject;
+					return true;
+				}				
+			}
+		}
+		return false;
+	}
+		
+
+	void Update()
 	{
 		if (myCombatController.IsAlive() == false) 
 		{
-			anim.Play ("jump");
-			Destroy (this.gameObject, 1);
+			Destroy (this.gameObject);
 		}
 	}
-
-	public void ForceTarget(GameObject myTarget)
-	{
-		target = myTarget;
-		targetAlive = myTarget.GetComponent<CombatController>().IsAlive();
-		agent.SetDestination(myTarget.transform.position);
-	}
-
+		
 	public void Attack()
 	{
 		var currentTime = Time.time;
 		if (Time.time > nextAttack) {
 			nextAttack = Time.time + baseStats.AttackStats.attackSpeed;
 			anim.Play ("attack");
-			target.GetComponentInParent<CombatController> ().ReceiveDamage (GameController.DamageType.Physical, 50/*This should be attack damage... duh*/);
-			anim.PlayQueued ("idle");
+			target.GetComponent<CombatController> ().ReceiveDamage (GameController.DamageType.Physical, 50/*This should be attack damage... duh*/);
 		}
 	}
-
-//	void FindNewTarget()
-//	{
-//		foreach( Collider collider in Physics.OverlapSphere (this.transform.position, aggroCollider.radius)
-//			{
-//				if(collider
-//			}
-//
-//	}
+		
 
 }
